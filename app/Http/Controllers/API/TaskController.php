@@ -36,14 +36,18 @@ class TaskController extends Controller
 
     public function store(Request $request): JsonResponse
     {
+
         return rescue(function () use ($request) {
             $validated = $request->validate([
                 'title' => 'required|string|max:255',
-                'description' => 'string',
             ]);
 
-            $task = Task::create($validated);
+            $task = (new Task())
+                ->newQuery()
+                ->create($validated);
             //return created task as json format
+
+
             return response()->json([
                 'status' => true,
                 'payload' => $task,
@@ -85,11 +89,28 @@ class TaskController extends Controller
         });
     }
 
-    public function complete(Request$request, Task $task)
+    public function complete(Request $request)
     {
-        return rescue(function () use ($request, $task) {
+        return rescue(function () use ($request) {
 
-            $task->update(['status' => 1]);
+            $task = (new Task())
+                ->find($request->get('id'));
+
+            if (!$task) {
+                return response()->json([
+                    'status' => false,
+                    'payload' => 'Task not found',
+                    'meta' => [
+                        '_timestamp' => Carbon::now()->timestamp,
+                    ],
+                ], 404);
+            }
+            
+            $status = $request->get('status', 1);
+
+            $task->update([
+                'status' => $status,
+            ]);
 
             return response()->json([
                 'status' => true,

@@ -105,7 +105,7 @@ class TaskController extends Controller
                     ],
                 ], 404);
             }
-            
+
             $status = $request->get('status', 1);
 
             $task->update([

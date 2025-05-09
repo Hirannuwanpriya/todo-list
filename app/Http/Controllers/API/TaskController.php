@@ -40,6 +40,9 @@ class TaskController extends Controller
         return rescue(function () use ($request) {
             $validated = $request->validate([
                 'title' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'status' => 'nullable|integer',
+                'sort_order' => 'nullable|integer',
             ]);
 
             $task = (new Task())
@@ -54,7 +57,7 @@ class TaskController extends Controller
                 'meta' => [
                     '_timestamp' => Carbon::now()->timestamp,
                 ],
-            ], 200);
+            ], 201);
 
         }, function ($e) {
             return response()->json([
